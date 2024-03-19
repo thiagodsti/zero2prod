@@ -1,7 +1,6 @@
 use std::net::TcpListener;
-use once_cell::sync::Lazy;
-use secrecy::ExposeSecret;
 
+use once_cell::sync::Lazy;
 use serde_json::json;
 use sqlx::{Connection, Executor, PgConnection, PgPool, query};
 use uuid::Uuid;
@@ -49,7 +48,7 @@ async fn spawn_app() -> TestApp {
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
 // Create database
-    let mut connection = PgConnection::connect(&config.connection_string_without_db().expose_secret())
+    let mut connection = PgConnection::connect_with(&config.without_db())
         .await
         .expect("Failed to connect to Postgres");
     connection
@@ -57,7 +56,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to create database.");
 // Migrate database
-    let connection_pool = PgPool::connect(&config.connection_string().expose_secret())
+    let connection_pool = PgPool::connect_with(config.with_db())
         .await
         .expect("Failed to connect to Postgres.");
     sqlx::migrate!("./migrations")
@@ -143,6 +142,34 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 // Additional customised error message on test failure
             "The API did not fail with 400 Bad Request when the payload was {}.",
             error_message
+        );
+    }
+}
+
+#[tokio::test]
+async fn subscribe_returns_a_200_when_fields_are_present_but_empty() {
+// Arrange
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+    let test_cases = vec![
+        (json!({"email": "test@thiago.com","name": ""}), "empty name"),
+        (json!({"email": "","name": "Thiago"}), "empty email"),
+        (json!({"email": "definitely-not-an-email","name": "Thiago"}), "invalid email")
+    ];
+    for (body, description) in test_cases {
+// Act
+        let response = client
+            .post(&format!("{}/subscriptions", &app.address))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
+// Assert
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "The API did not return a 200 OK when the payload was {}.",
+            description
         );
     }
 }
