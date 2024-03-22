@@ -4,9 +4,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct NewUserDto {
     name: String,
-    username: String,
-    password: String,
     email: String,
+    password: String,
     roles: Vec<String>,
 }
 
