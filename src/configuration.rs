@@ -1,13 +1,13 @@
 use config::{Config, ConfigError};
 use secrecy::{ExposeSecret, Secret};
 use serde_aux::field_attributes::deserialize_number_from_string;
-use sqlx::ConnectOptions;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
+use sqlx::ConnectOptions;
 
 #[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
-    pub application: ApplicationSettings
+    pub application: ApplicationSettings,
 }
 
 #[derive(serde::Deserialize)]
@@ -25,7 +25,7 @@ pub struct DatabaseSettings {
     pub port: u16,
     pub host: String,
     pub database_name: String,
-    pub require_ssl: bool
+    pub require_ssl: bool,
 }
 
 impl DatabaseSettings {
@@ -45,7 +45,8 @@ impl DatabaseSettings {
     }
 
     pub fn with_db(&self) -> PgConnectOptions {
-        self.without_db().database(&self.database_name)
+        self.without_db()
+            .database(&self.database_name)
             .log_statements(tracing::log::LevelFilter::Trace)
     }
 }
@@ -66,7 +67,9 @@ pub fn get_configuration() -> Result<Settings, ConfigError> {
 
     Config::builder()
         .add_source(config::File::from(configuration_directory.join("base")).required(true))
-        .add_source(config::File::from(configuration_directory.join(environment.as_str())).required(true))
+        .add_source(
+            config::File::from(configuration_directory.join(environment.as_str())).required(true),
+        )
         .add_source(config::Environment::with_prefix("app").separator("__"))
         .build()
         .unwrap()

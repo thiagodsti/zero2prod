@@ -1,6 +1,5 @@
-use serde::Deserialize;
 use crate::users::entities::new_user::NewUser;
-
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct NewUserDto {
@@ -14,7 +13,7 @@ pub struct NewUserDto {
 impl TryFrom<NewUserDto> for NewUser {
     type Error = String;
     fn try_from(value: NewUserDto) -> Result<Self, Self::Error> {
-        Ok(NewUser{
+        Ok(NewUser {
             name: value.name,
             password: value.password,
             email: value.email,
@@ -22,4 +21,3 @@ impl TryFrom<NewUserDto> for NewUser {
         })
     }
 }
-

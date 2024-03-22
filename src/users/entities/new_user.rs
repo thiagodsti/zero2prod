@@ -40,8 +40,8 @@ impl NewUserBuilder {
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
-    use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
+    use fake::Fake;
     use quickcheck::Gen;
     use rand::prelude::StdRng;
     use rand::SeedableRng;
@@ -52,12 +52,13 @@ mod tests {
     static VALID_USERNAME: &str = "thiago_username";
     static VALID_PASSWORD: &str = "1234512345";
 
-    fn get_valid_user_builder<>() -> NewUserBuilder {
+    fn get_valid_user_builder() -> NewUserBuilder {
         NewUserBuilder::default()
             .name(VALID_USERNAME.to_string())
             .email(VALID_EMAIL.to_string())
             .password(VALID_PASSWORD.to_string())
-            .roles(vec![]).to_owned()
+            .roles(vec![])
+            .to_owned()
     }
 
     #[test]
@@ -84,7 +85,6 @@ mod tests {
         let name = " ".to_string();
         assert_err!(get_valid_user_builder().name(name).build());
     }
-
 
     #[test]
     fn names_containing_an_invalid_character_are_rejected() {

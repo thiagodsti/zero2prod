@@ -1,7 +1,7 @@
+use crate::utils::validation::validate_name;
 use serde::Deserialize;
 use unicode_segmentation::UnicodeSegmentation;
-use validator::{Validate};
-use crate::utils::validation::validate_name;
+use validator::Validate;
 
 #[derive(Debug, Validate, Deserialize, Clone)]
 pub struct NewSubscriber {
@@ -13,13 +13,10 @@ pub struct NewSubscriber {
 
 impl NewSubscriber {
     pub fn new(email: String, name: String) -> Result<Self, String> {
-        let new_subscriber = NewSubscriber{
-            email,
-            name
-        };
+        let new_subscriber = NewSubscriber { email, name };
         match new_subscriber.validate() {
             Ok(_) => Ok(new_subscriber),
-            Err(err) => Err(err.to_string())
+            Err(err) => Err(err.to_string()),
         }
     }
 }
@@ -27,8 +24,8 @@ impl NewSubscriber {
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
-    use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
+    use fake::Fake;
     use quickcheck::Gen;
     use rand::prelude::StdRng;
     use rand::SeedableRng;
@@ -42,85 +39,94 @@ mod tests {
     #[test]
     fn a_256_grapheme_long_name_is_valid() {
         let name = "a".repeat(256);
-        let sub = NewSubscriber{
+        let sub = NewSubscriber {
             name: String::from("Thiago"),
-            email: VALID_EMAIL.parse().unwrap()
+            email: VALID_EMAIL.parse().unwrap(),
         };
-        assert_ok!(NewSubscriber{
+        assert_ok!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()
-        }.validate());
+        }
+        .validate());
     }
     #[test]
     fn a_name_longer_than_256_graphemes_is_rejected() {
         let name = "a".repeat(257);
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()
-        }.validate());
+        }
+        .validate());
     }
 
     #[test]
     fn whitespace_only_names_are_rejected() {
         let name = " ".to_string();
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()
-        }.validate());
+        }
+        .validate());
     }
 
     #[test]
     fn empty_name_string_is_rejected() {
         let name = "".to_string();
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()
-        }.validate());
+        }
+        .validate());
     }
 
     #[test]
     fn names_containing_an_invalid_character_are_rejected() {
         for name in &['/', '(', ')', '"', '<', '>', '\\', '{', '}'] {
             let name = name.to_string();
-            assert_err!(NewSubscriber{
-            name,
-            email: VALID_EMAIL.parse().unwrap()
-            }.validate());
+            assert_err!(NewSubscriber {
+                name,
+                email: VALID_EMAIL.parse().unwrap()
+            }
+            .validate());
         }
     }
 
     #[test]
     fn a_valid_name_is_parsed_successfully() {
         let name = "Ursula Le Guin".to_string();
-        assert_ok!(NewSubscriber{
+        assert_ok!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()
-        }.validate());
+        }
+        .validate());
     }
 
     #[test]
     fn empty_email_string_is_rejected() {
         let email = "".to_string();
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name: VALID_USERNAME.parse().unwrap(),
             email
-        }.validate());
+        }
+        .validate());
     }
     #[test]
     fn email_missing_at_symbol_is_rejected() {
         let email = "ursuladomain.com".to_string();
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name: VALID_USERNAME.parse().unwrap(),
             email
-        }.validate());
+        }
+        .validate());
     }
     #[test]
     fn email_missing_subject_is_rejected() {
         let email = "@domain.com".to_string();
-        assert_err!(NewSubscriber{
+        assert_err!(NewSubscriber {
             name: VALID_USERNAME.parse().unwrap(),
             email
-        }.validate());
+        }
+        .validate());
     }
 
     #[derive(Debug, Clone)]
@@ -138,6 +144,4 @@ mod tests {
     fn valid_subscriptions_are_parsed_successfully(valid_subscriber: ValidNewSubscriber) -> bool {
         NewSubscriber::new(valid_subscriber.0, valid_subscriber.1).is_ok()
     }
-
 }
-

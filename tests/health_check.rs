@@ -2,10 +2,10 @@ use std::net::TcpListener;
 
 use once_cell::sync::Lazy;
 use serde_json::json;
-use sqlx::{Connection, Executor, PgConnection, PgPool, query};
+use sqlx::{query, Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
-use zero2prod::configuration::{DatabaseSettings, get_configuration};
+use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::startup::run;
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
@@ -28,8 +28,7 @@ pub struct TestApp {
 async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
 
-    let listener = TcpListener::bind("127.0.0.1:0")
-        .expect("Failed to bind random port");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
 
@@ -42,12 +41,12 @@ async fn spawn_app() -> TestApp {
     let _ = tokio::spawn(server);
     TestApp {
         address,
-        db_pool: connection_pool
+        db_pool: connection_pool,
     }
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-// Create database
+    // Create database
     let mut connection = PgConnection::connect_with(&config.without_db())
         .await
         .expect("Failed to connect to Postgres");
@@ -55,7 +54,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
         .await
         .expect("Failed to create database.");
-// Migrate database
+    // Migrate database
     let connection_pool = PgPool::connect_with(config.with_db())
         .await
         .expect("Failed to connect to Postgres.");
@@ -96,9 +95,9 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
     // Act
     let body = json!({
-        "email": "test@thiago.com",
-        "name": "Thiago"
-        });
+    "email": "test@thiago.com",
+    "name": "Thiago"
+    });
     let response = client
         .post(&format!("{}/subscriptions", &app.address))
         .json(&body)
@@ -119,7 +118,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
 #[tokio::test]
 async fn subscribe_returns_a_400_when_data_is_missing() {
-// Arrange
+    // Arrange
     let app = spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
@@ -128,18 +127,18 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
         (json!({}), "missing both name and email"),
     ];
     for (invalid_body, error_message) in test_cases {
-// Act
+        // Act
         let response = client
             .post(&format!("{}/subscriptions", &app.address))
             .json(&invalid_body)
             .send()
             .await
             .expect("Failed to execute request.");
-// Assert
+        // Assert
         assert_eq!(
             400,
             response.status().as_u16(),
-// Additional customised error message on test failure
+            // Additional customised error message on test failure
             "The API did not fail with 400 Bad Request when the payload was {}.",
             error_message
         );
@@ -148,23 +147,26 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 
 #[tokio::test]
 async fn subscribe_returns_a_200_when_fields_are_present_but_empty() {
-// Arrange
+    // Arrange
     let app = spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
         (json!({"email": "test@thiago.com","name": ""}), "empty name"),
         (json!({"email": "","name": "Thiago"}), "empty email"),
-        (json!({"email": "definitely-not-an-email","name": "Thiago"}), "invalid email")
+        (
+            json!({"email": "definitely-not-an-email","name": "Thiago"}),
+            "invalid email",
+        ),
     ];
     for (body, description) in test_cases {
-// Act
+        // Act
         let response = client
             .post(&format!("{}/subscriptions", &app.address))
             .json(&body)
             .send()
             .await
             .expect("Failed to execute request.");
-// Assert
+        // Assert
         assert_eq!(
             400,
             response.status().as_u16(),

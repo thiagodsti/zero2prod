@@ -1,9 +1,9 @@
-use actix_web::{HttpResponse, web};
+use crate::domain::NewSubscriber;
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 use sqlx::types::chrono::Utc;
 use sqlx::types::Uuid;
-use crate::domain::{NewSubscriber};
+use sqlx::PgPool;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewSubscriberDto {
@@ -33,16 +33,15 @@ pub async fn subscribe(form: web::Json<NewSubscriberDto>, pool: web::Data<PgPool
         Ok(subscriber) => subscriber,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
-    match insert_subscriber(&pool, &new_subscriber).await
-    {
+    match insert_subscriber(&pool, &new_subscriber).await {
         Ok(_) => HttpResponse::Ok().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish()
+        Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
 
 #[tracing::instrument(
-name = "Saving new subscriber details in the database",
-skip(new_subscriber, pool)
+    name = "Saving new subscriber details in the database",
+    skip(new_subscriber, pool)
 )]
 pub async fn insert_subscriber(
     pool: &PgPool,
@@ -57,14 +56,14 @@ pub async fn insert_subscriber(
         new_subscriber.email,
         new_subscriber.name,
         Utc::now()
-        )
-// We use `get_ref` to get an immutable reference to the `PgConnection`
-// wrapped by `web::Data`.
-        .execute(pool)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to execute query: {:?}", e);
-            e
-        })?;
+    )
+    // We use `get_ref` to get an immutable reference to the `PgConnection`
+    // wrapped by `web::Data`.
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        tracing::error!("Failed to execute query: {:?}", e);
+        e
+    })?;
     Ok(())
 }

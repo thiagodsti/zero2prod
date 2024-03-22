@@ -1,7 +1,7 @@
 pub mod configuration;
+mod domain;
 pub mod routes;
 pub mod startup;
 pub mod telemetry;
-mod domain;
 mod users;
 mod utils;
