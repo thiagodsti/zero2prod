@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 
-use crate::users::entities::new_user::NewUser;
+use crate::domain::users::entities::new_user::NewUser;
 
 #[tracing::instrument(name = "Saving new user details in the database", skip(new_user, pool))]
 pub async fn insert_user(pool: &PgPool, new_user: &NewUser) -> Result<(), sqlx::Error> {

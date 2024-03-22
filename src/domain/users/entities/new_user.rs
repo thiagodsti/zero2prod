@@ -1,5 +1,5 @@
 use derive_builder::Builder;
-use validator::{Validate, ValidateEmail, ValidateLength};
+use validator::{ValidateEmail, ValidateLength};
 
 use crate::utils::validation::validate_name;
 
@@ -40,13 +40,13 @@ impl NewUserBuilder {
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
-    use fake::faker::internet::en::SafeEmail;
     use fake::Fake;
+    use fake::faker::internet::en::SafeEmail;
     use quickcheck::Gen;
     use rand::prelude::StdRng;
     use rand::SeedableRng;
 
-    use crate::users::entities::new_user::{NewUser, NewUserBuilder, NewUserBuilderError};
+    use crate::domain::users::entities::new_user::{NewUser, NewUserBuilder, NewUserBuilderError};
 
     static VALID_EMAIL: &str = "thiago@gmail.com";
     static VALID_USERNAME: &str = "thiago_username";
@@ -64,7 +64,7 @@ mod tests {
     #[test]
     fn a_256_grapheme_long_name_is_valid() {
         let name = "a".repeat(256);
-        let user = get_valid_user_builder().build();
+        let user = get_valid_user_builder().name(name).build();
         assert_ok!(user);
     }
 

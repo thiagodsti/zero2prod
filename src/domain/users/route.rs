@@ -1,9 +1,9 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use sqlx::PgPool;
 
-use crate::users::dtos::NewUserDto;
-use crate::users::entities::new_user::NewUser;
-use crate::users::repository::insert_user;
+use crate::domain::users::dtos::NewUserDto;
+use crate::domain::users::entities::new_user::NewUser;
+use crate::domain::users::service::save_user;
 
 #[tracing::instrument(name = "Adding a new user", skip(form, pool))]
 pub async fn save_new_user(form: web::Json<NewUserDto>, pool: web::Data<PgPool>) -> HttpResponse {
@@ -11,7 +11,8 @@ pub async fn save_new_user(form: web::Json<NewUserDto>, pool: web::Data<PgPool>)
         Ok(user) => user,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
-    match insert_user(&pool, &new_user).await {
+
+    match save_user(&new_user, pool).await {
         Ok(_) => HttpResponse::Created().finish(),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }

@@ -1,5 +1,6 @@
-use crate::users::entities::new_user::NewUser;
 use serde::Deserialize;
+
+use crate::domain::users::entities::new_user::NewUser;
 
 #[derive(Debug, Deserialize)]
 pub struct NewUserDto {

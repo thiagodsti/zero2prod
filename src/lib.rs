@@ -3,5 +3,4 @@ mod domain;
 pub mod routes;
 pub mod startup;
 pub mod telemetry;
-mod users;
 mod utils;

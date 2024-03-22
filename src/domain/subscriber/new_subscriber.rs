@@ -1,7 +1,7 @@
-use crate::utils::validation::validate_name;
 use serde::Deserialize;
-use unicode_segmentation::UnicodeSegmentation;
 use validator::Validate;
+
+use crate::utils::validation::validate_name;
 
 #[derive(Debug, Validate, Deserialize, Clone)]
 pub struct NewSubscriber {
@@ -24,8 +24,8 @@ impl NewSubscriber {
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
-    use fake::faker::internet::en::SafeEmail;
     use fake::Fake;
+    use fake::faker::internet::en::SafeEmail;
     use quickcheck::Gen;
     use rand::prelude::StdRng;
     use rand::SeedableRng;
@@ -39,10 +39,6 @@ mod tests {
     #[test]
     fn a_256_grapheme_long_name_is_valid() {
         let name = "a".repeat(256);
-        let sub = NewSubscriber {
-            name: String::from("Thiago"),
-            email: VALID_EMAIL.parse().unwrap(),
-        };
         assert_ok!(NewSubscriber {
             name,
             email: VALID_EMAIL.parse().unwrap()

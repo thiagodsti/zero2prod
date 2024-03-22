@@ -1,13 +1,13 @@
 use std::net::TcpListener;
 
+use actix_web::{App, HttpServer, web};
 use actix_web::dev::Server;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpServer};
 use sqlx::PgPool;
 use tracing_actix_web::TracingLogger;
 
+use crate::domain::users::route::save_new_user;
 use crate::routes::{health_check, subscribe};
-use crate::users::service::save_new_user;
 
 pub fn run(listener: TcpListener, db_pool: PgPool) -> std::io::Result<Server> {
     // Wrap the connection in a smart pointer

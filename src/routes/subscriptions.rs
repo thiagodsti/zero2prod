@@ -1,9 +1,10 @@
-use crate::domain::NewSubscriber;
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use sqlx::types::chrono::Utc;
 use sqlx::types::Uuid;
-use sqlx::PgPool;
+
+use crate::domain::NewSubscriber;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewSubscriberDto {
