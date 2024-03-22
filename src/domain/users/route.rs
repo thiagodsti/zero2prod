@@ -1,7 +1,7 @@
 use actix_web::{HttpResponse, web};
 use sqlx::PgPool;
 
-use crate::domain::users::dtos::NewUserDto;
+use crate::domain::users::dtos::new_user_dto::NewUserDto;
 use crate::domain::users::entities::new_user::NewUser;
 use crate::domain::users::service::save_user;
 
