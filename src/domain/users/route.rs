@@ -17,7 +17,7 @@ pub async fn save_new_user(
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
 
-    let service = UserServiceImpl::new(pool);
+    let service = UserServiceImpl::new(UserRepositoryImpl::new(pool));
     match service.save_user(&new_user).await {
         Ok(_) => HttpResponse::Created().finish(),
         Err(_) => HttpResponse::InternalServerError().finish(),
