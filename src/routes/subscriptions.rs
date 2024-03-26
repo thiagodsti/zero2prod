@@ -1,8 +1,8 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 use sqlx::types::chrono::Utc;
 use sqlx::types::Uuid;
+use sqlx::PgPool;
 
 use crate::domain::NewSubscriber;
 

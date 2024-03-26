@@ -1,13 +1,17 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{post, web, HttpResponse};
 use sqlx::PgPool;
 
 use crate::domain::users::dtos::new_user_dto::NewUserDto;
 use crate::domain::users::entities::new_user::NewUser;
 use crate::domain::users::service::save_user;
 
-#[tracing::instrument(name = "Adding a new user", skip(form, pool))]
-pub async fn save_new_user(form: web::Json<NewUserDto>, pool: web::Data<PgPool>) -> HttpResponse {
-    let new_user: NewUser = match form.0.try_into() {
+#[tracing::instrument(name = "Adding a new user", skip(new_user_dto, pool))]
+#[post("")]
+pub async fn save_new_user(
+    new_user_dto: web::Json<NewUserDto>,
+    pool: web::Data<PgPool>,
+) -> HttpResponse {
+    let new_user: NewUser = match new_user_dto.0.try_into() {
         Ok(user) => user,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };

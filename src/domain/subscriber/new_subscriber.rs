@@ -24,8 +24,8 @@ impl NewSubscriber {
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
-    use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
+    use fake::Fake;
     use quickcheck::Gen;
     use rand::prelude::StdRng;
     use rand::SeedableRng;

@@ -1,8 +1,8 @@
 use std::net::TcpListener;
 
-use actix_web::{App, HttpServer, web};
 use actix_web::dev::Server;
 use actix_web::web::Data;
+use actix_web::{web, App, HttpServer};
 use sqlx::PgPool;
 use tracing_actix_web::TracingLogger;
 
@@ -18,7 +18,7 @@ pub fn run(listener: TcpListener, db_pool: PgPool) -> std::io::Result<Server> {
             .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
-            .route("/users", web::post().to(save_new_user))
+            .service(web::scope("/users").service(save_new_user))
             .app_data(db_pool.clone())
     })
     .listen(listener)?

@@ -3,12 +3,11 @@ use sqlx::query;
 
 use crate::utils::startup::spawn_app;
 
-mod utils;
-
 #[tokio::test]
 async fn send_new_users_returns_201() {
     // Arrange
     let app = spawn_app().await;
+    //MockUserService::new();
 
     let client = reqwest::Client::new();
     // Act

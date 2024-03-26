@@ -1,5 +1,5 @@
 use serde_json::json;
-use sqlx::{query};
+use sqlx::query;
 
 use crate::utils::startup::spawn_app;
 
