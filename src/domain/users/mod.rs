@@ -1,5 +1,5 @@
 mod dtos;
 mod entities;
-mod repository;
+pub mod repository;
 pub mod route;
-mod service;
+pub mod service;
