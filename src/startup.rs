@@ -1,27 +1,16 @@
-use std::net::TcpListener;
-
-use actix_web::dev::Server;
-use actix_web::web::{Data};
-use actix_web::{web, App, HttpServer};
-use sqlx::PgPool;
-use tracing_actix_web::TracingLogger;
-
+use axum::Router;
+use axum::routing::{get, post};
+use sqlx::{PgPool};
 use crate::domain::users::route::save_new_user;
+
 use crate::routes::{health_check, subscribe};
 
-pub fn run(listener: TcpListener, db_pool: PgPool) -> std::io::Result<Server> {
-    // Wrap the connection in a smart pointer
-    let db_pool = Data::new(db_pool);
 
-    let server = HttpServer::new(move || {
-        App::new()
-            .wrap(TracingLogger::default())
-            .route("/health_check", web::get().to(health_check))
-            .route("/subscriptions", web::post().to(subscribe))
-            .service(web::scope("/users").service(save_new_user))
-            .app_data(db_pool.clone())
-    })
-    .listen(listener)?
-    .run();
-    Ok(server)
+pub fn app(pg_pool: PgPool) -> Router {
+    Router::new()
+        .route("/health_check", get(|| health_check()))
+        .route("/subscriptions", post(subscribe))
+        .route("/users", post(save_new_user))
+        .with_state(pg_pool)
+
 }

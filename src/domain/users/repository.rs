@@ -1,4 +1,3 @@
-use actix_web::web::Data;
 use mockall::automock;
 use sqlx::PgPool;
 
@@ -11,11 +10,11 @@ pub trait UserRepository {
 }
 
 pub struct UserRepositoryImpl {
-    pool: Data<PgPool>
+    pool: PgPool
 }
 
 impl UserRepositoryImpl {
-    pub fn new(pool: Data<PgPool>) -> Self {
+    pub fn new(pool: PgPool) -> Self {
         Self {
             pool
         }
@@ -35,7 +34,7 @@ impl UserRepository for UserRepositoryImpl {
         new_user.password,
         &new_user.roles
     )
-            .execute(self.pool.get_ref())
+            .execute(&self.pool)
             .await
             .map_err(|e| {
                 tracing::error!("Failed to execute query: {:?}", e);

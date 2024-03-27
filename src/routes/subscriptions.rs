@@ -1,4 +1,6 @@
-use actix_web::{web, HttpResponse};
+use axum::extract::State;
+use axum::http::StatusCode;
+use axum::Json;
 use serde::{Deserialize, Serialize};
 use sqlx::types::chrono::Utc;
 use sqlx::types::Uuid;
@@ -29,15 +31,19 @@ subscriber_email = % form.email,
 subscriber_name = % form.name
 )
 )]
-pub async fn subscribe(form: web::Json<NewSubscriberDto>, pool: web::Data<PgPool>) -> HttpResponse {
-    let new_subscriber: NewSubscriber = match form.0.try_into() {
+pub async fn subscribe(State(pool): State<PgPool>,
+                       Json(form): Json<NewSubscriberDto>,
+
+)-> StatusCode {
+    let new_subscriber: NewSubscriber = match form.try_into() {
         Ok(subscriber) => subscriber,
-        Err(_) => return HttpResponse::BadRequest().finish(),
+        Err(_) => return StatusCode::BAD_REQUEST
     };
     match insert_subscriber(&pool, &new_subscriber).await {
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(_) => StatusCode::OK,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
+
 }
 
 #[tracing::instrument(
