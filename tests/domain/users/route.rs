@@ -7,7 +7,6 @@ use crate::utils::startup::spawn_app;
 async fn send_new_users_returns_201() {
     // Arrange
     let app = spawn_app().await;
-    //MockUserService::new();
 
     let client = reqwest::Client::new();
     // Act
