@@ -1,13 +1,13 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::domain::users::entities::new_user::NewUser;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NewUserDto {
-    name: String,
-    email: String,
-    password: String,
-    roles: Vec<String>,
+    pub(crate) name: String,
+    pub(crate) email: String,
+    pub(crate) password: String,
+    pub(crate) roles: Vec<String>,
 }
 
 impl TryFrom<NewUserDto> for NewUser {

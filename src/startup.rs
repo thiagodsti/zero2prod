@@ -1,7 +1,7 @@
-use axum::Router;
+use axum::{Router};
 use axum::routing::{get, post};
 use sqlx::{PgPool};
-use crate::domain::users::route::save_new_user;
+use crate::domain::users::route::{save_new_user};
 
 use crate::routes::{health_check, subscribe};
 

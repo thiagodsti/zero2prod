@@ -5,8 +5,7 @@ use crate::domain::users::entities::new_user::NewUser;
 use crate::domain::users::repository::UserRepository;
 
 #[automock]
-pub trait UserService<T: UserRepository + 'static> {
-    fn new(repository: T) -> Self;
+pub trait UserService {
     async fn save_user(&self, new_user: &NewUser) -> Result<(), Error>;
 }
 
@@ -14,12 +13,15 @@ pub struct UserServiceImpl<T: UserRepository> {
     repository: T,
 }
 
-impl<T> UserService<T> for UserServiceImpl<T> where T: UserRepository + 'static {
-    fn new(repository: T) -> Self {
+impl<T> UserServiceImpl<T> where T: UserRepository + 'static {
+    pub(crate) fn new(repository: T) -> Self {
         Self {
             repository
         }
     }
+}
+
+impl<T> UserService for UserServiceImpl<T> where T: UserRepository + 'static {
 
     #[tracing::instrument(name = "Adding a new user", skip(new_user, self))]
     async fn save_user(&self, new_user: &NewUser) -> Result<(), Error> {
