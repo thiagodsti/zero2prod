@@ -24,7 +24,6 @@ pub async fn spawn_app() -> (Router, PgPool) {
     let pg_pool = configure_database(&configuration.database).await;
     let app = app(pg_pool.clone());
     (app, pg_pool)
-
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {

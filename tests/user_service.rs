@@ -18,12 +18,16 @@ async fn send_new_users_returns_201() {
         "email": "test@thiago.com",
         "password": "1234512345",
         "roles": ["BASIC", "ADMIN"]
-    }).to_string();
+    })
+    .to_string();
     let payload = Body::from(body);
-    let response = app.oneshot(Request::post("/users")
-        .header("Content-Type", "application/json")
-        .body(payload)
-        .unwrap())
+    let response = app
+        .oneshot(
+            Request::post("/users")
+                .header("Content-Type", "application/json")
+                .body(payload)
+                .unwrap(),
+        )
         .await
         .unwrap();
 

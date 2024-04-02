@@ -25,5 +25,6 @@ async fn main() {
         configuration.application.host, configuration.application.port
     );
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
+
     axum::serve(listener, app(connection_pool)).await.unwrap()
 }

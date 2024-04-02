@@ -7,6 +7,7 @@ use sqlx::types::Uuid;
 use sqlx::PgPool;
 
 use crate::domain::NewSubscriber;
+use crate::startup::AppState;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewSubscriberDto {
@@ -25,25 +26,24 @@ impl TryFrom<NewSubscriberDto> for NewSubscriber {
 
 #[tracing::instrument(
 name = "Adding a new subscriber",
-skip(form, pool),
+skip(form, state),
 fields(
 subscriber_email = % form.email,
 subscriber_name = % form.name
 )
 )]
-pub async fn subscribe(State(pool): State<PgPool>,
-                       Json(form): Json<NewSubscriberDto>,
-
-)-> StatusCode {
+pub async fn subscribe(
+    State(state): State<AppState>,
+    Json(form): Json<NewSubscriberDto>,
+) -> StatusCode {
     let new_subscriber: NewSubscriber = match form.try_into() {
         Ok(subscriber) => subscriber,
-        Err(_) => return StatusCode::BAD_REQUEST
+        Err(_) => return StatusCode::BAD_REQUEST,
     };
-    match insert_subscriber(&pool, &new_subscriber).await {
+    match insert_subscriber(&state.pool, &new_subscriber).await {
         Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
-
 }
 
 #[tracing::instrument(
