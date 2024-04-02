@@ -18,6 +18,7 @@ async fn send_new_users_returns_201() {
         "roles": ["BASIC", "ADMIN"]
     })
     .to_string();
+
     let payload = Body::from(body);
     let response = app
         .oneshot(
@@ -28,6 +29,7 @@ async fn send_new_users_returns_201() {
         )
         .await
         .unwrap();
+    // Act
 
     // Assert
     assert_eq!(201, response.status().as_u16());

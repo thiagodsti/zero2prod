@@ -1,15 +1,12 @@
-use axum::extract::State;
 use axum::http::StatusCode;
 use axum::Json;
 
 use crate::domain::users::dtos::new_user_dto::NewUserDto;
 use crate::domain::users::entities::new_user::NewUser;
 use crate::domain::users::service::UserService;
-use crate::startup::AppState;
 
-#[tracing::instrument(name = "Adding a new user", skip(new_user_dto, _state, user_service))]
+#[tracing::instrument(name = "Adding a new user", skip(new_user_dto, user_service))]
 pub async fn save_new_user(
-    State(_state): State<AppState>,
     Json(new_user_dto): Json<NewUserDto>,
     user_service: impl UserService,
 ) -> StatusCode {
@@ -25,16 +22,12 @@ pub async fn save_new_user(
 
 #[cfg(test)]
 mod tests {
-    use axum::extract::State;
     use axum::Json;
-    use sqlx::postgres::PgPoolOptions;
-    use sqlx::Error;
+    use sqlx::{Error};
 
-    use crate::configuration::get_configuration;
     use crate::domain::users::dtos::new_user_dto::NewUserDto;
     use crate::domain::users::route::save_new_user;
     use crate::domain::users::service::MockUserService;
-    use crate::startup::AppState;
 
     #[tokio::test]
     async fn wrong_body_expects_bad_request() {
@@ -48,13 +41,10 @@ mod tests {
         "#;
 
         let new_user_dto: NewUserDto = serde_json::from_str(body).unwrap();
-        let pg_pool = PgPoolOptions::default()
-            .connect_lazy_with(get_configuration().unwrap().database.without_db());
         let mut service_mock = MockUserService::new();
 
         service_mock.expect_save_user().never();
         let status_code = save_new_user(
-            State(AppState { pool: pg_pool }),
             Json(new_user_dto),
             service_mock,
         )
@@ -74,8 +64,6 @@ mod tests {
         "#;
 
         let new_user_dto: NewUserDto = serde_json::from_str(body).unwrap();
-        let pg_pool = PgPoolOptions::default()
-            .connect_lazy_with(get_configuration().unwrap().database.without_db());
         let mut service_mock = MockUserService::new();
 
         service_mock
@@ -83,11 +71,38 @@ mod tests {
             .returning(|_| Err(Error::PoolClosed))
             .times(1);
         let status_code = save_new_user(
-            State(AppState { pool: pg_pool }),
             Json(new_user_dto),
             service_mock,
         )
         .await;
         assert_eq!(status_code, 500);
     }
+
+    #[tokio::test]
+    async fn send_new_users_returns_201() {
+        // Arrange
+        let body = r#"
+            {
+                "name": "Thiago",
+                "email": "thiago@test.com",
+                "password": "1234512345",
+                "roles": ["BASIC", "ADMIN"]
+            }
+        "#;
+
+        let new_user_dto: NewUserDto = serde_json::from_str(body).unwrap();
+        let mut service_mock = MockUserService::new();
+
+        service_mock
+            .expect_save_user()
+            .returning(|_| Ok(()))
+            .times(1);
+        let status_code = save_new_user(
+            Json(new_user_dto),
+            service_mock,
+        )
+            .await;
+        assert_eq!(status_code, 201);
+    }
+
 }
