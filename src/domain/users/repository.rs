@@ -4,6 +4,7 @@ use sqlx::PgPool;
 use crate::domain::users::entities::new_user::NewUser;
 
 #[automock]
+#[allow(async_fn_in_trait)]
 pub trait UserRepository {
     async fn insert_user(&self, new_user: &NewUser) -> Result<(), sqlx::Error>;
 }
@@ -49,7 +50,6 @@ mod tests {
     use crate::utils::db_test_connection::db_config;
     use claim::assert_err;
     use sqlx::query;
-    use std::ptr::null;
 
     #[tokio::test]
     async fn save_successfully() {

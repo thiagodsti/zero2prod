@@ -4,6 +4,7 @@ use sqlx::Error;
 use crate::domain::users::entities::new_user::NewUser;
 use crate::domain::users::repository::UserRepository;
 
+#[allow(async_fn_in_trait)]
 #[automock]
 pub trait UserService {
     async fn save_user(&self, new_user: &NewUser) -> Result<(), Error>;

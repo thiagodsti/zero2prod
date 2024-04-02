@@ -14,7 +14,7 @@ pub fn app(pg_pool: PgPool) -> Router {
     let user_service = UserServiceImpl::new(UserRepositoryImpl::new(pg_pool.clone()));
     let state = AppState {};
     Router::new()
-        .route("/health_check", get(|| health_check()))
+        .route("/health_check", get(health_check))
         .route(
             "/users",
             post(move |json| save_new_user(json, user_service.clone())),
