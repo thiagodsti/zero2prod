@@ -1,15 +1,6 @@
 CREATE
 extension if not exists "pgcrypto";
 
-CREATE TABLE subscriptions
-(
-    id            uuid        NOT NULL,
-    email         TEXT        NOT NULL UNIQUE,
-    name          TEXT        NOT NULL,
-    subscribed_at timestamptz NOT NULL,
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE users
 (
     id         VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),

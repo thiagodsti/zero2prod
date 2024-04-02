@@ -1,8 +1,8 @@
 #[cfg(test)]
 pub mod db_config {
+    use crate::configuration::{get_configuration, DatabaseSettings};
     use sqlx::{Connection, Executor, PgConnection, PgPool};
     use uuid::Uuid;
-    use crate::configuration::{DatabaseSettings, get_configuration};
 
     pub async fn configure_database() -> PgPool {
         let mut configuration = get_configuration().expect("Failed to read configuration.");

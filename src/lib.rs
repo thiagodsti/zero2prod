@@ -1,6 +1,5 @@
 pub mod configuration;
-mod domain;
-pub mod routes;
+pub mod domain;
 pub mod startup;
 pub mod telemetry;
 mod utils;

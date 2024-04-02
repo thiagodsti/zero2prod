@@ -44,10 +44,12 @@ impl UserRepository for UserRepositoryImpl {
 
 #[cfg(test)]
 mod tests {
-    use sqlx::{query};
-    use crate::domain::users::entities::new_user::NewUserBuilder;
+    use crate::domain::users::entities::new_user::{NewUser, NewUserBuilder};
     use crate::domain::users::repository::{UserRepository, UserRepositoryImpl};
     use crate::utils::db_test_connection::db_config;
+    use claim::assert_err;
+    use sqlx::query;
+    use std::ptr::null;
 
     #[tokio::test]
     async fn save_successfully() {
@@ -58,18 +60,47 @@ mod tests {
             .name(String::from("Thiago"))
             .email(String::from("thiago@test.com"))
             .password(String::from("1234512345"))
-            .roles(vec!(String::from("BASIC"),String::from("ADMIN")))
+            .roles(vec![String::from("BASIC"), String::from("ADMIN")])
             .build()
             .unwrap();
         user_repository.insert_user(&new_user).await.unwrap();
 
         let saved = query!("SELECT email, name FROM users",)
-        .fetch_one(&pg_pool)
-        .await
-        .expect("Failed to fetch saved users.");
+            .fetch_one(&pg_pool)
+            .await
+            .expect("Failed to fetch saved users.");
         assert_eq!(saved.email, "thiago@test.com");
         assert_eq!(saved.name, "Thiago");
     }
 
+    #[tokio::test]
+    async fn save_with_error() {
+        let pg_pool = db_config::configure_database().await;
+        let user_repository = UserRepositoryImpl::new(pg_pool.clone());
 
+        let test_cases = vec![
+            NewUser {
+                name: "a".repeat(256),
+                email: "email".to_string(),
+                password: "password".to_string(),
+                roles: vec![],
+            },
+            NewUser {
+                name: "name".to_string(),
+                email: "a".repeat(256),
+                password: "password".to_string(),
+                roles: vec![],
+            },
+            NewUser {
+                name: "name".to_string(),
+                email: "email".to_string(),
+                password: "a".repeat(256),
+                roles: vec![],
+            },
+        ];
+
+        for invalid_user in test_cases {
+            assert_err!(user_repository.insert_user(&invalid_user).await);
+        }
+    }
 }

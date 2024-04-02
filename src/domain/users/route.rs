@@ -23,7 +23,7 @@ pub async fn save_new_user(
 #[cfg(test)]
 mod tests {
     use axum::Json;
-    use sqlx::{Error};
+    use sqlx::Error;
 
     use crate::domain::users::dtos::new_user_dto::NewUserDto;
     use crate::domain::users::route::save_new_user;
@@ -44,11 +44,7 @@ mod tests {
         let mut service_mock = MockUserService::new();
 
         service_mock.expect_save_user().never();
-        let status_code = save_new_user(
-            Json(new_user_dto),
-            service_mock,
-        )
-        .await;
+        let status_code = save_new_user(Json(new_user_dto), service_mock).await;
         assert_eq!(status_code, 400);
     }
 
@@ -70,11 +66,7 @@ mod tests {
             .expect_save_user()
             .returning(|_| Err(Error::PoolClosed))
             .times(1);
-        let status_code = save_new_user(
-            Json(new_user_dto),
-            service_mock,
-        )
-        .await;
+        let status_code = save_new_user(Json(new_user_dto), service_mock).await;
         assert_eq!(status_code, 500);
     }
 
@@ -97,12 +89,7 @@ mod tests {
             .expect_save_user()
             .returning(|_| Ok(()))
             .times(1);
-        let status_code = save_new_user(
-            Json(new_user_dto),
-            service_mock,
-        )
-            .await;
+        let status_code = save_new_user(Json(new_user_dto), service_mock).await;
         assert_eq!(status_code, 201);
     }
-
 }

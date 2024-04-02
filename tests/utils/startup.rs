@@ -2,13 +2,11 @@ use axum::Router;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
-use zero2prod::configuration::{get_configuration, DatabaseSettings};
+use zero2prod::configuration::get_configuration;
 use zero2prod::startup::app;
 
 pub async fn spawn_app() -> (Router, PgPool) {
-    let mut configuration = get_configuration().expect("Failed to read configuration.");
-    configuration.database.database_name = Uuid::new_v4().to_string();
-    let pg_pool = _configure_database(&configuration.database).await;
+    let pg_pool = configure_database().await;
     let app = app(pg_pool.clone());
     (app, pg_pool)
 }
@@ -16,10 +14,7 @@ pub async fn spawn_app() -> (Router, PgPool) {
 pub async fn configure_database() -> PgPool {
     let mut configuration = get_configuration().expect("Failed to read configuration.");
     configuration.database.database_name = Uuid::new_v4().to_string();
-    _configure_database(&configuration.database).await
-}
-
-async fn _configure_database(config: &DatabaseSettings) -> PgPool {
+    let config = configuration.database;
     // Create database
     let mut connection = PgConnection::connect_with(&config.without_db())
         .await
